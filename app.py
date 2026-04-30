@@ -73,7 +73,7 @@ if file:
 
     # --- INTERPRETACIONES DINÁMICAS ---
     st.subheader("Interpretaciones")
-    if temp_mean > 30:
+    if temp_mean > 20:
         st.warning("Advertencia: La temperatura promedio supera los 30°C.")
     if state_counts is not None and "FAIL" in state_counts.index and state_counts["FAIL"] > 0:
         st.error("Alerta: Se detectaron registros en estado FAIL.")
