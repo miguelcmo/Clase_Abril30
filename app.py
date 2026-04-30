@@ -1,42 +1,49 @@
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
+import streamlit as st          # Importa Streamlit para crear la interfaz web
+import pandas as pd             # Importa pandas para manejar y analizar datos
+import matplotlib.pyplot as plt # Importa matplotlib para generar gráficas
 
+# Título principal de la aplicación
 st.title("Dashboard IoT")
 
-# Subir archivo
+# Componente para subir archivo CSV
 file = st.file_uploader("Sube tu archivo CSV")
 
+# Si el usuario sube un archivo...
 if file:
+    # Leer el CSV en un DataFrame de pandas
     df = pd.read_csv(file)
 
-    # Filtros
+    # --- FILTROS ---
+    # Filtrar por device_id si existe esa columna
     if "device_id" in df.columns:
         device_ids = df["device_id"].unique()
         selected_device = st.selectbox("Filtrar por device_id", options=device_ids)
         df = df[df["device_id"] == selected_device]
 
+    # Filtrar por rango de fechas si existe columna timestamp
     if "timestamp" in df.columns:
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         start_date = st.date_input("Fecha inicial", df["timestamp"].min())
         end_date = st.date_input("Fecha final", df["timestamp"].max())
         df = df[(df["timestamp"] >= pd.to_datetime(start_date)) & (df["timestamp"] <= pd.to_datetime(end_date))]
 
+    # Mostrar vista previa de los datos
     st.write("Vista previa de los datos:", df.head())
 
-    # Estadísticas
-    temp_mean = df["temperature"].mean()
-    energy_mean = df["energy_consumption"].mean()
-    vibration_max = df["vibration"].max()
-    state_counts = df["state"].value_counts() if "state" in df.columns else None
+    # --- ESTADÍSTICAS ---
+    temp_mean = df["temperature"].mean()              # Promedio de temperatura
+    energy_mean = df["energy_consumption"].mean()     # Promedio de consumo energético
+    vibration_max = df["vibration"].max()             # Máximo valor de vibración
+    state_counts = df["state"].value_counts() if "state" in df.columns else None  # Conteo de estados
 
+    # Mostrar estadísticas en pantalla
     st.write("Temperatura promedio:", round(temp_mean, 2))
     st.write("Consumo energético promedio:", round(energy_mean, 2))
     st.write("Máxima vibración:", vibration_max)
     if state_counts is not None:
         st.write("Conteo de estados:", state_counts)
 
-    # Gráficas
+    # --- GRÁFICAS ---
     st.subheader("Gráficas")
 
     # Serie de tiempo: temperatura vs tiempo
@@ -64,7 +71,7 @@ if file:
     ax.set_ylabel("Consumo energético")
     st.pyplot(fig)
 
-    # Interpretaciones dinámicas
+    # --- INTERPRETACIONES DINÁMICAS ---
     st.subheader("Interpretaciones")
     if temp_mean > 30:
         st.warning("Advertencia: La temperatura promedio supera los 30°C.")
